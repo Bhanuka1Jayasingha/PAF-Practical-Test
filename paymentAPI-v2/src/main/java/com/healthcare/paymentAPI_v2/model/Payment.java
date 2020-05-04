@@ -1,5 +1,6 @@
 package com.healthcare.paymentAPI_v2.model;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -94,7 +95,7 @@ public class Payment {
 			if (con == null) {
 				return "Error while connecting to the database for reading.";
 			}
-			output = "<table border=\"1\"><tr><th>PaymentID</th><th>hospitalID</th><th>patientID</th><th>docID</th><th>amount</th><th>dates</th><th>appointmentID</th><th>paymentStatus</th></tr>";
+			output = "<table class=\"table table-striped table-dark\" border=\"1\"><tr><th>PaymentID</th><th>hospitalID</th><th>patientID</th><th>docID</th><th>amount</th><th>dates</th><th>appointmentID</th><th>paymentStatus</th></tr>";
 			String query = "select * from payments";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
