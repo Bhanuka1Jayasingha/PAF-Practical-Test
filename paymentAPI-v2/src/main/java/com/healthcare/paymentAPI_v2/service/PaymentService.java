@@ -31,9 +31,9 @@ public class PaymentService {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String insertPayment(@FormParam("patientID") int patientID,
-								@FormParam("hospitalID") int hospitalID,
-								@FormParam("docID") int docID,
+	public String insertPayment(@FormParam("patientID") String patientID,
+								@FormParam("hospitalID") String hospitalID,
+								@FormParam("docID") String docID,
 								@FormParam("amount") String amount,
 								@FormParam("appointmentID") String appointmentID,
 								@FormParam("paymentStatus") String paymentStatus)

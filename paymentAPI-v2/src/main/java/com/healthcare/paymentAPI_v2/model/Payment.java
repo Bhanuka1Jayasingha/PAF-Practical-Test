@@ -23,7 +23,7 @@ public class Payment {
 		return con;
 	}
 
-	public String insertPayment(int docID, int hospitalID, int patientID, String amount, String appointmentID, String paymentStatus) {
+	public String insertPayment(String docID, String hospitalID, String patientID, String amount, String appointmentID, String paymentStatus) {
 		String output = "";
 		try {
 			Connection con = connect();
@@ -39,9 +39,9 @@ public class Payment {
 			System.out.println(formatter.format(date));
 
 			PreparedStatement preparedStmt = con.prepareStatement(query);
-			preparedStmt.setInt(1, patientID);
-			preparedStmt.setInt(2, hospitalID);
-			preparedStmt.setInt(3, docID);
+			preparedStmt.setString(1, patientID);
+			preparedStmt.setString(2, hospitalID);
+			preparedStmt.setString(3, docID);
 			preparedStmt.setString(4, amount);
 			preparedStmt.setString(5, appointmentID);
 			preparedStmt.setString(6, paymentStatus);
@@ -49,10 +49,11 @@ public class Payment {
 
 			preparedStmt.execute();
 			con.close();
-
-			output = "Inserted successfully";
+			
+			String newItems = readPayments();
+			output =  "{\"status\":\"success\", \"data\": \"" +        newItems + "\"}"; 
 		} catch (Exception e) {
-			output = "Error while inserting the item.";
+			output =  "{\"status\":\"error\", \"data\":         \"Error while inserting the item.\"}";
 			System.err.println(e.getMessage());
 		}
 		return output;
@@ -79,9 +80,10 @@ public class Payment {
 			preparedStmt.execute();
 			con.close();
 
-			output = "Inserted successfully";
+			String newItems = readPayments();
+			output =  "{\"status\":\"success\", \"data\": \"" +        newItems + "\"}";
 		} catch (Exception e) {
-			output = "Error while inserting the item.";
+			output =  "{\"status\":\"error\", \"data\":         \"Error while inserting the item.\"}";
 			System.err.println(e.getMessage());
 		}
 		return output;
@@ -95,7 +97,7 @@ public class Payment {
 			if (con == null) {
 				return "Error while connecting to the database for reading.";
 			}
-			output = "<table class=\"table table-striped table-dark\" border=\"1\"><tr><th>PaymentID</th><th>hospitalID</th><th>patientID</th><th>docID</th><th>amount</th><th>dates</th><th>appointmentID</th><th>paymentStatus</th></tr>";
+			output = "<table class=\"table table-striped table-dark\" border=\"1\"><tr><th>PaymentID</th><th>hospitalID</th><th>patientID</th><th>docID</th><th>amount</th><th>dates</th><th>appointmentID</th><th>paymentStatus</th>" + "<th>Update</th><th>Remove</th></tr>";;
 			String query = "select * from payments";
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
@@ -111,7 +113,9 @@ public class Payment {
 
 				System.out.println(paymentID + patientID);
 
-				output += "<tr><td>" + paymentID + "</td>";
+				output += "<tr><td><input id='hidIDUpdate'" + " name='hidIDUpdate' " + " type='hidden' value='"
+						+ paymentID + "'>" + paymentID + "</td>";
+				
 				output += "<td>" + hospitalID + "</td>";
 				output += "<td>" + patientID + "</td>";
 				output += "<td>" + docID + "</td>";
@@ -119,7 +123,12 @@ public class Payment {
 				output += "<td>" + dates + "</td>";
 				output += "<td>" + appointmentID + "</td>";
 				output += "<td>" + paymentStatus + "</td>";
-				output += "</tr>";
+				// buttons
+				output +="<td><input name='btnUpdate'          type='button' value='Update'         class='btnUpdate btn btn-secondary'></td>" 
+						+"<td><input name='btnRemove'"
+						+ "type='button' value='Remove'" + " class='btnRemove btn btn-danger'" + " data-itemid='"
+						+ paymentID + "'>" + "</td></tr>";
+
 			}
 			output += "</table>";
 		} catch (Exception e) {
@@ -313,6 +322,62 @@ public class Payment {
 
 		} catch (Exception e) {
 			output = "Error while updating.....";
+			System.err.println(e.getMessage());
+		}
+		return output;
+	}
+	
+	
+	public String deletePayment(String paymentNo) {
+		String output = "";
+		try {
+			Connection con = connect();
+			if (con == null) {
+				return "Error while connecting to the database for deleting";
+			}
+			
+			String query = "delete from payments where paymentID=?";
+			PreparedStatement preparedStmt = con.prepareStatement(query);
+			
+			preparedStmt.setInt(1, Integer.parseInt(paymentNo));
+			
+			preparedStmt.execute();
+			con.close();
+			String newPayment = readPayments();
+			output = "{\"status\":\"success\", \"data\": \"" + newPayment + "\"}";
+		} catch (Exception e) {
+			output = "{\"status\":\"error\", \"data\": \"Error while deleting the payment.\"}";
+			System.err.println(e.getMessage());
+		}
+		return output;
+	}
+	
+	public String updatePayment(String paymentID, String docID, String hospitalID, String patientID, String amount, String appointmentID, String paymentStatus, String date ) {
+		String output = "";
+		try {
+			Connection con = connect();
+			if (con == null) {
+				return "Error while connecting to the database for updating";
+			}
+			
+			String query = "UPDATE payment SET `patientID`, `hospitalID`,`docID`,`amount`, `appointmentID`, `paymentStatus`, `date`  WHERE paymentID=?";
+			PreparedStatement preparedStmt = con.prepareStatement(query);
+			
+			preparedStmt.setString(1, patientID);
+			preparedStmt.setString(2, hospitalID);
+			preparedStmt.setString(3, docID);
+			preparedStmt.setString(4, amount);
+			preparedStmt.setString(5, appointmentID);
+			preparedStmt.setString(6, paymentStatus);
+			preparedStmt.setString(7, date);
+			preparedStmt.setString(8, paymentID);
+			
+			preparedStmt.execute();
+			con.close();
+			String newPayment = readPayments();
+			output = "{\"status\":\"success\", \"data\": \"" + newPayment + "\"}";
+		} catch (Exception e) {
+			output = "{\"status\":\"error\", \"data\":\"Error while updating the payment.\"}";
 			System.err.println(e.getMessage());
 		}
 		return output;
